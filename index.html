@@ -2,9 +2,15 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <!-- Добавьте этот мета-тег для CSP -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:;">
     <title>История Русской Православной Церкви</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="assets/styles.css">
+    
+    <!-- Подключение библиотек -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.2/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.0.2/dist/mermaid.min.js"></script>
 </head>
 <body>
     <header>
@@ -18,7 +24,6 @@
         <p>© 2023 Электронный учебник по истории РПЦ</p>
     </footer>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.2/marked.min.js"></script>
     <script src="assets/script.js"></script>
 </body>
 </html>
