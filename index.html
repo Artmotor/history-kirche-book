@@ -2,10 +2,10 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <!-- Добавьте этот мета-тег для CSP -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:;">
     <title>История Русской Православной Церкви</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="assets/styles.css">
     
     <!-- Подключение библиотек -->
@@ -14,14 +14,28 @@
 </head>
 <body>
     <header>
-        <h1>История РПЦ</h1>
-        <nav id="toc"></nav>
+        <div class="header-content">
+            <h1>История РПЦ</h1>
+            <div class="search-box">
+                <input type="text" placeholder="Поиск...">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+            <nav id="toc"></nav>
+        </div>
     </header>
     
-    <main id="content"></main>
+    <main id="content">
+        <div class="loading">Загрузка...</div>
+    </main>
     
     <footer>
-        <p>© 2023 Электронный учебник по истории РПЦ</p>
+        <div class="footer-content">
+            <p>© 2023 Электронный учебник по истории РПЦ</p>
+            <div class="page-nav">
+                <button id="prev-btn" disabled><i class="fas fa-arrow-left"></i> Назад</button>
+                <button id="next-btn">Вперед <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
     </footer>
 
     <script src="assets/script.js"></script>
