@@ -2,63 +2,48 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         // Загружаем список глав
         const response = await fetch('chapters.json');
-        if (!response.ok) throw new Error('Failed to load chapters list');
+        if (!response.ok) throw new Error('Не удалось загрузить список глав');
         const chapters = await response.json();
         
         const params = new URLSearchParams(window.location.search);
-        const page = params.get('page') || chapters[0].id;
-        const currentIndex = chapters.findIndex(ch => ch.id === page);
+        const pageId = params.get('page') || chapters[0].id;
         
         // Инициализация навигации
-        await initNavigation(chapters, currentIndex);
+        await initNavigation(chapters);
         
         // Загрузка контента
-        await loadContent(chapters, page);
+        await loadContent(chapters, pageId);
         
     } catch (err) {
-        console.error('Initialization error:', err);
-        document.getElementById('content').innerHTML = `
-            <div class="error">
-                <h2>Ошибка загрузки</h2>
-                <p>${err.message}</p>
-                <a href="?page=01-intro">Вернуться на главную</a>
-            </div>
-        `;
+        console.error('Ошибка инициализации:', err);
+        showError(err.message);
     }
 });
 
-async function loadContent(chapters, page) {
+async function loadContent(chapters, pageId) {
     try {
-        const chapter = chapters.find(ch => ch.id === page);
-        if (!chapter) throw new Error('Chapter not found');
+        const chapter = chapters.find(ch => ch.id === pageId);
+        if (!chapter) throw new Error('Глава не найдена');
         
         const contentResponse = await fetch(chapter.file);
-        if (!contentResponse.ok) throw new Error('File not found');
+        if (!contentResponse.ok) throw new Error('Файл не найден');
         const md = await contentResponse.text();
         
         document.getElementById('content').innerHTML = marked.parse(md);
-        highlightActiveLink(page);
+        highlightActiveLink(pageId);
         initMermaid();
         updatePageTitle(chapter.title);
-        
-        // Обновляем кнопки навигации
-        updateNavButtons(chapters, page);
+        updateNavButtons(chapters, pageId);
         
     } catch (err) {
-        console.error('Error loading content:', err);
-        document.getElementById('content').innerHTML = `
-            <div class="error">
-                <h2>Ошибка загрузки</h2>
-                <p>${err.message}</p>
-                <a href="?page=01-intro">Вернуться на главную</a>
-            </div>
-        `;
+        console.error('Ошибка загрузки контента:', err);
+        showError(err.message);
     }
 }
 
-async function initNavigation(chapters) {
+function initNavigation(chapters) {
     const toc = document.getElementById('toc');
-    toc.innerHTML = ''; // Очищаем существующее оглавление
+    if (!toc) return;
     
     const ul = document.createElement('ul');
     
@@ -74,30 +59,37 @@ async function initNavigation(chapters) {
     toc.appendChild(ul);
 }
 
-function updateNavButtons(chapters, currentPage) {
-    const currentIndex = chapters.findIndex(ch => ch.id === currentPage);
+function updateNavButtons(chapters, currentPageId) {
+    const currentIndex = chapters.findIndex(ch => ch.id === currentPageId);
     const prevBtn = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
     
-    prevBtn.disabled = currentIndex <= 0;
-    nextBtn.disabled = currentIndex >= chapters.length - 1;
+    if (prevBtn) prevBtn.disabled = currentIndex <= 0;
+    if (nextBtn) nextBtn.disabled = currentIndex >= chapters.length - 1;
     
-    prevBtn.onclick = () => {
-        if (currentIndex > 0) {
-            window.location.href = `?page=${chapters[currentIndex - 1].id}`;
-        }
-    };
+    if (prevBtn) {
+        prevBtn.onclick = () => {
+            if (currentIndex > 0) {
+                window.location.href = `?page=${chapters[currentIndex - 1].id}`;
+            }
+        };
+    }
     
-    nextBtn.onclick = () => {
-        if (currentIndex < chapters.length - 1) {
-            window.location.href = `?page=${chapters[currentIndex + 1].id}`;
-        }
-    };
+    if (nextBtn) {
+        nextBtn.onclick = () => {
+            if (currentIndex < chapters.length - 1) {
+                window.location.href = `?page=${chapters[currentIndex + 1].id}`;
+            }
+        };
+    }
 }
 
-function highlightActiveLink(page) {
-    document.querySelectorAll('#toc a').forEach(link => {
-        link.classList.toggle('active', link.href.includes(page));
+function highlightActiveLink(pageId) {
+    const links = document.querySelectorAll('#toc a');
+    if (!links) return;
+    
+    links.forEach(link => {
+        link.classList.toggle('active', link.href.includes(pageId));
     });
 }
 
@@ -113,5 +105,18 @@ function initMermaid() {
             securityLevel: 'loose'
         });
         mermaid.init(undefined, '.mermaid');
+    }
+}
+
+function showError(message) {
+    const content = document.getElementById('content');
+    if (content) {
+        content.innerHTML = `
+            <div class="error">
+                <h2>Ошибка загрузки</h2>
+                <p>${message}</p>
+                <a href="?page=01-intro">Вернуться на главную</a>
+            </div>
+        `;
     }
 }
