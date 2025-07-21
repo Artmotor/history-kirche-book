@@ -1,9 +1,27 @@
+// Конфигурация
+const config = {
+    contentPath: 'content/',
+    files: [
+        { id: '01-intro', title: 'Введение' },
+        { id: '02-kreschenie', title: 'Крещение Руси' }
+        // Добавьте другие главы здесь
+    ]
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
-    const page = params.get('page') || '01-intro';
+    const page = params.get('page') || config.files[0].id;
+    const currentIndex = config.files.findIndex(f => f.id === page);
+    
+    // Инициализация навигации
+    initNavigation(currentIndex);
     
     // Загрузка контента
-    fetch(`content/${page}.md`)
+    loadContent(page);
+});
+
+function loadContent(page) {
+    fetch(`${config.contentPath}${page}.md`)
         .then(response => {
             if (!response.ok) throw new Error('File not found');
             return response.text();
@@ -12,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('content').innerHTML = marked.parse(md);
             highlightActiveLink(page);
             initMermaid();
+            updatePageTitle(page);
         })
         .catch(err => {
             console.error('Error loading content:', err);
@@ -19,52 +38,65 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="error">
                     <h2>Ошибка загрузки</h2>
                     <p>Не удалось загрузить страницу: ${page}.md</p>
-                    <a href="index.html">Вернуться на главную</a>
+                    <a href="?page=${config.files[0].id}">Вернуться на главную</a>
                 </div>
             `;
         });
-    
-    // Генерация оглавления из статического списка
-    generateTOC();
-});
+}
 
-function generateTOC() {
-    // Статический список файлов
-    const files = [
-        '01-intro',
-        '02-kreschenie',
-        // Добавьте другие файлы здесь
-    ];
-    
+function initNavigation(currentIndex) {
     const toc = document.getElementById('toc');
     const ul = document.createElement('ul');
     
-    files.forEach(file => {
+    config.files.forEach((file, index) => {
         const li = document.createElement('li');
         const a = document.createElement('a');
-        a.href = `index.html?page=${file}`;
-        a.textContent = formatTitle(file);
+        a.href = `?page=${file.id}`;
+        a.textContent = file.title;
+        if (index === currentIndex) {
+            a.classList.add('active');
+        }
         li.appendChild(a);
         ul.appendChild(li);
     });
     
     toc.appendChild(ul);
-}
-
-function formatTitle(filename) {
-    return filename.split('-').slice(1)
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ')
-        .replace(/\d+/g, '');
+    
+    // Кнопки навигации
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    
+    if (currentIndex <= 0) {
+        prevBtn.disabled = true;
+    } else {
+        prevBtn.onclick = () => {
+            window.location.href = `?page=${config.files[currentIndex - 1].id}`;
+        };
+    }
+    
+    if (currentIndex >= config.files.length - 1) {
+        nextBtn.disabled = true;
+    } else {
+        nextBtn.onclick = () => {
+            window.location.href = `?page=${config.files[currentIndex + 1].id}`;
+        };
+    }
 }
 
 function highlightActiveLink(page) {
     document.querySelectorAll('#toc a').forEach(link => {
+        link.classList.remove('active');
         if (link.href.includes(page)) {
-            link.style.fontWeight = 'bold';
-            link.style.background = 'rgba(255,255,255,0.2)';
+            link.classList.add('active');
         }
     });
+}
+
+function updatePageTitle(page) {
+    const file = config.files.find(f => f.id === page);
+    if (file) {
+        document.title = `История РПЦ - ${file.title}`;
+    }
 }
 
 function initMermaid() {
