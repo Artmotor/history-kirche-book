@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Просмотр Markdown</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Назад к содержанию</a>
+        <div id="content" class="markdown-body"></div>
+    </div>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const file = urlParams.get('file');
+        
+        if (file) {
+            fetch(`md/${file}`)
+                .then(response => response.text())
+                .then(text => {
+                    document.getElementById('content').innerHTML = marked.parse(text);
+                    document.title = file + ' - Просмотр Markdown';
+                })
+                .catch(err => {
+                    document.getElementById('content').innerHTML = `<p>Ошибка загрузки файла: ${err}</p>`;
+                });
+        }
+    </script>
+</body>
+</html>
