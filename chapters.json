@@ -1,4 +1,12 @@
 [
-    {"id": "01-intro", "title": "Введение", "file": "content/01-intro.md"},
-    {"id": "02-kreschenie", "title": "Крещение Руси", "file": "content/02-kreschenie.md"}
+    {
+        "id": "01-intro",
+        "title": "Введение",
+        "file": "content/01-intro.md"
+    },
+    {
+        "id": "02-kreschenie",
+        "title": "Крещение Руси",
+        "file": "content/02-kreschenie.md"
+    }
 ]
