@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function fetchMarkdownFiles() {
-    fetch('data/')
+    fetch('данные/')
         .then(response => response.text())
         .then(text => {
             // Парсим список файлов из ответа сервера
